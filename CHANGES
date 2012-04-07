@@ -1,0 +1,13 @@
+$Id: CHANGES,v 1.2 2002/01/27 02:08:20 mavetju Exp $
+
+version 1.2
+	- Changed documentation into .pod format
+	- Added autoconfiguration script
+	- Fixed linking problems for Solaris/SunOS
+
+version 1.1
+	- Added DHCPINFORM option with help from Peter Marschall
+	  <peter.marschall@mayn.de>
+
+version 1.0
+	- initial release

@@ -1,0 +1,148 @@
+#
+# $Id: dhcping.pod,v 1.1 2002/01/27 01:57:15 mavetju Exp $
+#
+
+=head1 NAME
+
+B<dhcping> - send a DHCP request to DHCP server to see if it's up and running
+
+=head1 SYNOPSIS
+
+B<dhcping>
+[B<-v>] [B<-q>] [B<-i>] [B<-r>]
+B<-t> I<maxwait>
+B<-c> I<client-IP-address>
+B<-s> I<server-IP-address>
+B<-h> I<client-hardware-address>
+[B<-g> I<gateway-IP-address>]
+
+=head1 DESCRIPTION
+
+This command allows the system administrator to check if a remote
+DHCP server is still functioning.
+
+Options are:
+
+=over
+
+=item B<-v>
+
+Verbose, print some information.
+
+=item B<-i>
+
+Use DHCPINFORM packets.
+
+=item B<-r>
+
+Use DHCPREQUEST packets (default behaviour).
+
+=item B<-q>
+
+Quiet, print nothing on the screen.
+
+=item B<-t> I<maxwait>
+
+Maximum time to wait for an answer from the server in seconds.
+Default is 3 seconds.
+
+=item B<-c> I<client-IP-address>
+
+Request this IP address. Note that this is also the IP address the
+answer will be sent to.
+
+=item B<-s> I<server-IP-address>
+
+Send the DHCP packet to this IP address.
+
+=item B<-h> I<client-hardware-address>
+
+Use this hardware-address in the DHCP request. It can be up to
+sixteen octets seperated by colons (i.e. 01:02:03:04)
+
+=item B<-g> I<gateway-IP-address>
+
+Use this IP address for the gateway IP address in the DHCP packet.
+This option is currently broken.
+
+=back
+
+=head1 RETURN VALUES
+
+If everything goes okay, it returns 0. If there went something
+wrong, it returns 1.
+
+=head1 SETUP
+
+This program should be installed setuid root or ran by root only.
+See SECURITY for more information.
+
+On your DHCP server, add these lines to the dhcpd.conf:
+
+  host <your monitoring host FQDN> {
+     hardware ethernet <your monitor host mac address>;
+     fixed-address     <your monitoring host IP address>;
+  }
+
+Then try it:
+
+$ dhcping -c I<your monitoring host IP address> \
+          -s I<your DHCP server IP address> \
+          -h I<your monitor host mac address>
+
+It will either respond with "no answer" or "Got answer from: I<your
+DHCP server IP address>"
+
+The DHCP server logfile will give:
+ S<DHCPREQUEST for 192.168.1.1 from 00:20:18:56:29:8f via ed0>
+ S<DHCPACK on 192.168.1.1 to 00:20:18:56:29:8f via ed0>
+ S<DHCPRELEASE of 192.168.1.1 from 00:20:18:56:29:8f via ed0 (found)>
+
+Running in DHCPINFORM mode with B<-i>:
+
+If you see "DHCPINFORM from 192.168.1.1 via xl0: not authoritative
+for subnet 192.168.1.0", you should add the authoritative statement
+to the subnet, See dhcpd.conf(5) for details.
+
+When running in very verbose mode, B<dhcping> tries to dump all
+data of the send and received DHCP packets. It will first dump the
+packet in hex-format, then decodes the header and finally the
+options.
+
+=head1 HOW IT WORKS
+
+The client either sends a DHCPREQUEST or DHCPINFORM packet to the
+server and waits for an answer. Then, if a DHCPREQUEST was send,
+it will send a DHCPRELEASE back to the server.
+
+=head1 SECURITY
+
+This program is installed setuid root as it requires the privileges
+to bind itself to port 68 (bootpc). Root privileges are dropped as
+soon as the program has bound itself to that port.
+
+=head1 BUGS
+
+Currently (this may, or may not, change in the future) the ISC DHCP
+daemon does not write leases with a fixed IP address in the
+dhcpd.leases file.
+
+DHCPINFORM packets can only be used on subnets the server is authori-
+tative for. If the monitoring script runs on a subnet the server
+isn't authoritative for, it should use the DHCPREQUEST packets. I
+also experienced some problems with ISC DHCPD v2 servers, but that
+is also in the README of it.
+
+The B<-V> option is still working, but shouldn't be used for
+debugging of the packets. Better use dhcpdump(8) for that, which
+is available on my website. I wanted to remove it, but decided only
+to do it from the documentation, not from the code. Maybe I'll need
+it one day for debugging.
+
+=head1 AUTHOR
+
+Edwin Groothuis, edwin@mavetju.org (http://www.mavetju.org)
+
+=head1 SEE ALSO
+
+dhcpd(8), dhclient(8), dhcpd.conf(5), dhcpdump(8)

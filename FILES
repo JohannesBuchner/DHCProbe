@@ -1,0 +1,30 @@
+$Id: FILES,v 1.2 2002/01/27 02:18:36 mavetju Exp $
+
+General
+-------
+CHANGES		- Change log
+CONTACT		- How to contact me
+FILES		- This file
+LICENSE		- License under which this software is distributed
+
+Auto-configuration
+------------------
+Makefile.am	- My Makefile-template
+configure.in	- My configure-template
+Makefile.in	- (Created by automake)
+aclocal.m4	- (Needed by autoconf)
+config.guess	- (Needed by configure)
+config.sub	- (Needed by configure)
+configure	- Configure-file
+depcomp		- (Needed by configure)
+install-sh	- (Needed by configure)
+missing		- (Needed by configure)
+mkinstalldirs	- (Needed by configure)
+
+Source-file
+-----------
+dhcp_options.h	- Tables with dhcp-packet-field values and their
+		  readable descriptions
+dhcping.8	- Man-page, obtained from dhcping.pod
+dhcping.c	- The source-file
+dhcping.pod	- The original man-file
