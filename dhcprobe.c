@@ -1,5 +1,6 @@
 /*
  * Copyright 2000, 2001, 2002 by Edwin Groothuis, edwin@mavetju.org
+ * Copyright 2012 by Johannes Buchner, buchner.johannes@gmx.at
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -114,7 +115,7 @@ int main(int argc,char **argv) {
 
     doargs(argc,argv);
 
-    if (verbose) puts("setup");
+    if (verbose >= 2) puts("setup");
     dhcp_setup(server);
 
     if (setuid(getuid())!=0) {
@@ -124,11 +125,11 @@ int main(int argc,char **argv) {
     }
 
     if (inform) {
-	if (verbose) puts("inform");
+	if (verbose >= 2) puts("inform");
 	dhcp_inform(ci,gi,hw);
     }
     if (request) {
-	if (verbose) puts("request");
+	if (verbose >= 2) puts("request");
 	dhcp_request(ci,gi,hw);
     }
 
@@ -142,11 +143,11 @@ int main(int argc,char **argv) {
 	    exit(0);
 	}
 	if (FD_ISSET(dhcp_socket,&read)) {
-	    if (verbose) puts("read");
+	    if (verbose >= 2) puts("read");
 	    /* If a expected packet was found, then also release it. */
 	    if ((foundpacket=dhcp_read())!=0) {
 		if (request) {
-		    if (verbose) puts("release");
+		    if (verbose >= 2) puts("release");
 		    dhcp_release(ci,gi,hw);
 		}
 	    }
@@ -157,7 +158,7 @@ int main(int argc,char **argv) {
 	    foundpacket=1;
 	}
     }
-    if (verbose) puts("close");
+    if (verbose >= 2) puts("close");
     dhcp_close();
     return returnvalue;
 }
@@ -391,13 +392,13 @@ void dhcp_dump(unsigned char *buffer,int size) {
     int j;
 
     if (verbose == 0)
-    return;
+    	return;
 
     //
     // Are you sure you want to see this? Try dhcpdump, which is better
     // suited for this kind of work... See http://www.mavetju.org
     //
-    if (verbose > 1) {
+    if (verbose > 2) {
 	printf("packet %d bytes\n",size);
 	    for (j = 0; j < size; j++) {
 		printf("%02x ",buffer[j]);
@@ -443,7 +444,7 @@ void dhcp_dump(unsigned char *buffer,int size) {
     j=236;
     j+=4;	/* cookie */
     while (j<size && buffer[j]!=255) {
-	printf("option %d %s ",buffer[j],dhcp_options[buffer[j]]);
+	printf("option %2d %s ",buffer[j],dhcp_options[buffer[j]]);
 
 	switch (buffer[j]) {
 	case 54:

@@ -23,7 +23,7 @@ Options are:
 
 =item B<-v>
 
-Verbose, print some information. Apply twice to see the package in hex format.
+Verbose, print more information. Apply multiple times to see DHCP configuration details, connecting progress and the package in hex format.
 
 =item B<-i>
 
@@ -138,6 +138,7 @@ it one day for debugging.
 =head1 AUTHOR
 
 Edwin Groothuis, edwin@mavetju.org (http://www.mavetju.org)
+Johannes Buchner, buchner.johannes@gmx.at (https://github.com/JohannesBuchner/DHCProbe)
 
 =head1 SEE ALSO
 
