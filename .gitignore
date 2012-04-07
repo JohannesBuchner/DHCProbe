@@ -1,0 +1,7 @@
+config.log
+Makefile
+config.status
+*~
+dhcping
+*.o
+.deps

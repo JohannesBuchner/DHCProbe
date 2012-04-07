@@ -454,12 +454,13 @@ void dhcp_dump(unsigned char *buffer,int size) {
 	    memcpy(serveridentifier,buffer+j+2,4);
 	case 1:
 	case 3:
-	case 6:
-	case 50:
-	case 42:
-	case 28:
-	case 44:
 	case 4:
+	case 6:
+	case 28:
+	case 42:
+	case 44:
+	case 50:
+	case 252:
 	    printip(&buffer[j+2]);
 	    break;
 
