@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "dhcp_options.h"
 
@@ -64,7 +65,7 @@ struct sockaddr_in dhcp_to;
 
 int _serveripaddress;
 
-int inform,request,verbose,VERBOSE,quiet;
+int inform,request,verbose,quiet;
 char *ci,*gi,*server,*hw;
 unsigned char serveridentifier[4];
 int maxwait=3;
@@ -72,7 +73,7 @@ int maxwait=3;
 void doargs(int argc,char **argv) {
     char ch;
 
-    inform=request=verbose=VERBOSE=quiet=0;
+    inform=request=verbose=quiet=0;
     ci=gi=server="0.0.0.0";
     hw="00:00:00:00:00:00";
 
@@ -91,8 +92,7 @@ void doargs(int argc,char **argv) {
 	case 'r': request=1;break;
 	case 's': server=optarg;break;
 	case 't': maxwait=atoi(optarg);break;
-	case 'v': verbose=1;break;
-	case 'V': VERBOSE=1;break;
+	case 'v': verbose++;break;
 	}
     }
 
@@ -113,12 +113,12 @@ int main(int argc,char **argv) {
 
     if (geteuid()!=0) {
 	printf("This program should only be ran by root or be installed as setuid root.\n");
-	exit(1);
+	// exit(1);
     }
 
     doargs(argc,argv);
 
-    if (VERBOSE) puts("setup");
+    if (verbose) puts("setup");
     dhcp_setup(server);
 
     if (setuid(getuid())!=0) {
@@ -128,11 +128,11 @@ int main(int argc,char **argv) {
     }
 
     if (inform) {
-	if (VERBOSE) puts("inform");
+	if (verbose) puts("inform");
 	dhcp_inform(ci,gi,hw);
     }
     if (request) {
-	if (VERBOSE) puts("request");
+	if (verbose) puts("request");
 	dhcp_request(ci,gi,hw);
     }
 
@@ -146,11 +146,11 @@ int main(int argc,char **argv) {
 	    exit(0);
 	}
 	if (FD_ISSET(dhcp_socket,&read)) {
-	    if (VERBOSE) puts("read");
+	    if (verbose) puts("read");
 	    /* If a expected packet was found, then also release it. */
 	    if ((foundpacket=dhcp_read())!=0) {
 		if (request) {
-		    if (VERBOSE) puts("release");
+		    if (verbose) puts("release");
 		    dhcp_release(ci,gi,hw);
 		}
 	    }
@@ -161,7 +161,7 @@ int main(int argc,char **argv) {
 	    foundpacket=1;
 	}
     }
-    if (VERBOSE) puts("close");
+    if (verbose) puts("close");
     dhcp_close();
     return returnvalue;
 }
@@ -345,7 +345,7 @@ void dhcp_packet(int type,char *ipaddr,char *opt50,char *gwaddr,char *hardware) 
 	addpacket(pktbuf,msgbuf,1);
     }
 
-    dhcp_dump(pktbuf,offset);
+    // dhcp_dump(pktbuf,offset);
 
     sendto(dhcp_socket,pktbuf,offset,0,(struct sockaddr *)&dhcp_to,sizeof(dhcp_to));
 
@@ -387,89 +387,96 @@ int dhcp_read(void) {
     return 1;
 }
 
-
+void printip(unsigned char * buffer) {
+	printf("%d.%d.%d.%d", buffer[0],buffer[1],buffer[2],buffer[3]);
+}
 
 void dhcp_dump(unsigned char *buffer,int size) {
     int j;
 
-    if (VERBOSE)
-	printf("packet %d bytes\n",size);
-
-    if (!VERBOSE)
-	return;
+    if (verbose == 0)
+    return;
 
     //
     // Are you sure you want to see this? Try dhcpdump, which is better
     // suited for this kind of work... See http://www.mavetju.org
     //
-    j=0;
-    while (j<size) {
-	printf("%02x ",buffer[j]);
-	if (j%16==15) printf("\n");
-	j++;
+    if (verbose > 1) {
+	printf("packet %d bytes\n",size);
+	    for (j = 0; j < size; j++) {
+		printf("%02x ",buffer[j]);
+		if (j%16==15) printf(" (%2d)\n", j / 16);
+	    }
+	    printf("\n");
+	    for (j = 0; j < size; j++) {
+		if (isprint(buffer[j]))
+			printf("%c ",buffer[j]);
+		else 
+			printf("  ",buffer[j]);
+		if (j%16==15) printf(" (%2d)\n", j / 16);
+	    }
+	    printf("\n");
+
+	    printf("op: %d\n",buffer[0]);
+	    printf("htype: %d\n",buffer[1]);
+	    printf("hlen: %d\n",buffer[2]);
+		printf("hops: %d\n",buffer[3]);
+
+	    printf("xid: %02x%02x%02x%02x\n",
+		    buffer[4],buffer[5],buffer[6],buffer[7]);
+	    printf("secs: %d\n",255*buffer[8]+buffer[9]);
+	    printf("flags: %x\n",255*buffer[10]+buffer[11]);
+
+	    printf("ciaddr: %d.%d.%d.%d\n",
+		    buffer[12],buffer[13],buffer[14],buffer[15]);
+	    printf("yiaddr: %d.%d.%d.%d\n",
+		    buffer[16],buffer[17],buffer[18],buffer[19]);
+	    printf("siaddr: %d.%d.%d.%d\n",
+		    buffer[20],buffer[21],buffer[22],buffer[23]);
+	    printf("giaddr: %d.%d.%d.%d\n",
+		    buffer[24],buffer[25],buffer[26],buffer[27]);
+	    printf("chaddr: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
+		    buffer[28],buffer[29],buffer[30],buffer[31],
+		    buffer[32],buffer[33],buffer[34],buffer[35],
+		    buffer[36],buffer[37],buffer[38],buffer[39],
+		    buffer[40],buffer[41],buffer[42],buffer[43]);
+	    printf("sname : %s.\n",buffer+44);
+	    printf("fname : %s.\n",buffer+108);
     }
-    printf("\n");
-
-    printf("op: %d\n",buffer[0]);
-    printf("htype: %d\n",buffer[1]);
-    printf("hlen: %d\n",buffer[2]);
-	printf("hops: %d\n",buffer[3]);
-
-    printf("xid: %02x%02x%02x%02x\n",
-	    buffer[4],buffer[5],buffer[6],buffer[7]);
-    printf("secs: %d\n",255*buffer[8]+buffer[9]);
-    printf("flags: %x\n",255*buffer[10]+buffer[11]);
-
-    printf("ciaddr: %d.%d.%d.%d\n",
-	    buffer[12],buffer[13],buffer[14],buffer[15]);
-    printf("yiaddr: %d.%d.%d.%d\n",
-	    buffer[16],buffer[17],buffer[18],buffer[19]);
-    printf("siaddr: %d.%d.%d.%d\n",
-	    buffer[20],buffer[21],buffer[22],buffer[23]);
-    printf("giaddr: %d.%d.%d.%d\n",
-	    buffer[24],buffer[25],buffer[26],buffer[27]);
-    printf("chaddr: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
-	    buffer[28],buffer[29],buffer[30],buffer[31],
-	    buffer[32],buffer[33],buffer[34],buffer[35],
-	    buffer[36],buffer[37],buffer[38],buffer[39],
-	    buffer[40],buffer[41],buffer[42],buffer[43]);
-    printf("sname : %s.\n",buffer+44);
-    printf("fname : %s.\n",buffer+108);
 
     j=236;
     j+=4;	/* cookie */
     while (j<size && buffer[j]!=255) {
-	printf("option %d %s\n",buffer[j],dhcp_options[buffer[j]]);
+	printf("option %d %s ",buffer[j],dhcp_options[buffer[j]]);
 
 	switch (buffer[j]) {
-	case 1:
-	    printf("\tSubnet mask: %d.%d.%d.%d\n",
-		buffer[j+2],buffer[j+3],buffer[j+4],buffer[j+5]);
-	    break;
-	case 3:
-	    printf("\tRouter: %d.%d.%d.%d\n",
-		buffer[j+2],buffer[j+3],buffer[j+4],buffer[j+5]);
-	    break;
-	case 50:
-	    printf("\tRequested IP address: %d.%d.%d.%d\n",
-		buffer[j+2],buffer[j+3],buffer[j+4],buffer[j+5]);
-	    break;
-	case 53:
-	    printf("\tDHCP message type: %d (%s)\n",
-		buffer[j+2],dhcp_message_types[buffer[j+2]]);
-	    break;
 	case 54:
 	    memcpy(serveridentifier,buffer+j+2,4);
-	    printf("\tServer identifier: %d.%d.%d.%d\n",
-		serveridentifier[0],serveridentifier[1],
-		serveridentifier[2],serveridentifier[3]);
+	case 1:
+	case 3:
+	case 6:
+	case 50:
+	case 42:
+	case 28:
+	case 44:
+	case 4:
+	    printip(&buffer[j+2]);
+	    break;
+
+	case 53:
+	    printf("%d (%s)",
+		buffer[j+2],dhcp_message_types[buffer[j+2]]);
 	    break;
 	case 61:
-	    printf("\tClient identifier: %02x%02x%02x%02x%02x%02x\n",
+	    printf("%02x%02x%02x%02x%02x%02x",
 		buffer[j+2],buffer[j+3],buffer[j+4],
 		buffer[j+5],buffer[j+6],buffer[j+7]);
 	    break;
+	case 15:
+	    printf("%s", &buffer[j+2]);
+	    break;
 	}
+	printf("\n");
 
 	/*
 	// This might go wrong if a mallformed packet is received.
