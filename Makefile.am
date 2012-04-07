@@ -1,8 +1,9 @@
-bin_PROGRAMS = dhcping
-dhcping_SOURCES = dhcping.c dhcping_options.h
-man_MANS = dhcping.8
+bin_PROGRAMS = dhcprobe
+dhcprobe_SOURCES = dhcprobe.c dhcprobe_options.h
+man_MANS = dhcprobe.8
 
-dhcping.8: dhcping.pod
+dhcprobe.8: dhcprobe.pod
 	$(PERL2MAN_RULE)
 PERL2MAN_RULE = \
-	pod2man --release="Januari 27, 2002" --date="Januari 27, 2002" --center="General Commands Manual" --section=8 $? > $@
+	pod2man --release="April 7, 2012" --date="April 7, 2012" --center="General Commands Manual" --section=8 $? > $@
+

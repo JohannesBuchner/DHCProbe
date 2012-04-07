@@ -1,7 +1,3 @@
-//
-// $Id: dhcping.c,v 1.3 2002/01/27 01:57:15 mavetju Exp $
-//
-
 /*
  * Copyright 2000, 2001, 2002 by Edwin Groothuis, edwin@mavetju.org
  *
@@ -78,7 +74,7 @@ void doargs(int argc,char **argv) {
     hw="00:00:00:00:00:00";
 
     if (argc==1) {
-	printf("dhcping -c ciaddr -g giaddr -h chaddr -r -s server -t maxwait -i -v -q\n");
+	printf("SYNAPSIS: %s -c ciaddr -g giaddr -h chaddr -r -s server -t maxwait -i -v -q\n", argv[0]);
 	exit(1);
     }
 

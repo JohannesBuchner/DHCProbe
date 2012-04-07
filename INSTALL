@@ -1,0 +1,8 @@
+ $ ./configure
+
+ $ make
+
+as superuser:
+
+ $ make install
+

@@ -1,14 +1,10 @@
-#
-# $Id: dhcping.pod,v 1.1 2002/01/27 01:57:15 mavetju Exp $
-#
-
 =head1 NAME
 
-B<dhcping> - send a DHCP request to DHCP server to see if it's up and running
+B<dhcprobe> - send a DHCP request to DHCP server to check its configuration
 
 =head1 SYNOPSIS
 
-B<dhcping>
+B<dhcprobe>
 [B<-v>] [B<-q>] [B<-i>] [B<-r>]
 B<-t> I<maxwait>
 B<-c> I<client-IP-address>
@@ -27,7 +23,7 @@ Options are:
 
 =item B<-v>
 
-Verbose, print some information.
+Verbose, print some information. Apply twice to see the package in hex format.
 
 =item B<-i>
 
@@ -86,7 +82,7 @@ On your DHCP server, add these lines to the dhcpd.conf:
 
 Then try it:
 
-$ dhcping -c I<your monitoring host IP address> \
+$ dhcprobe -c I<your monitoring host IP address> \
           -s I<your DHCP server IP address> \
           -h I<your monitor host mac address>
 
@@ -104,7 +100,7 @@ If you see "DHCPINFORM from 192.168.1.1 via xl0: not authoritative
 for subnet 192.168.1.0", you should add the authoritative statement
 to the subnet, See dhcpd.conf(5) for details.
 
-When running in very verbose mode, B<dhcping> tries to dump all
+When running in very verbose mode, B<dhcprobe> tries to dump all
 data of the send and received DHCP packets. It will first dump the
 packet in hex-format, then decodes the header and finally the
 options.
