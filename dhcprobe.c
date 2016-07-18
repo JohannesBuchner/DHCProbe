@@ -409,7 +409,7 @@ void dhcp_dump(unsigned char *buffer,int size) {
 		if (isprint(buffer[j]))
 			printf("%c ",buffer[j]);
 		else 
-			printf("  ",buffer[j]);
+			printf("  ");
 		if (j%16==15) printf(" (%2d)\n", j / 16);
 	    }
 	    printf("\n");
