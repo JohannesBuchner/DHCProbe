@@ -2,7 +2,8 @@ dnl
 dnl dhcprobe configure.in. Scary... very scary.
 dnl
 
-AC_INIT(dhcprobe.c)
+#AC_INIT(dhcprobe.c)
+AC_INIT([dhcprobe], [1.2])
 
 AC_PROG_CC
 AC_PROG_INSTALL
@@ -30,7 +31,10 @@ solaris*)
 	;;
 esac
 
-AM_INIT_AUTOMAKE(dhcprobe, 1.2)
+#AM_INIT_AUTOMAKE(dhcprobe, 1.2)
+AC_CONFIG_SRCDIR([dhcprobe.c])
+AM_INIT_AUTOMAKE
+
 
 AC_HEADER_STDC
 AC_HEADER_TIME
