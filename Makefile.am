@@ -1,4 +1,3 @@
-AUTOMAKE_OPTIONS = foreign
 bin_PROGRAMS = dhcprobe
 dhcprobe_SOURCES = dhcprobe.c dhcprobe_options.h
 man_MANS = dhcprobe.8

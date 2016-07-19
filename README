@@ -1,4 +1,4 @@
-#DHCProbe -- send a DHCP request to DHCP server to check its configuration
+DHCProbe -- send a DHCP request to DHCP server to check its configuration
 ==========================================================================
 
 Using DHCProbe, one can request a lease from a DHCP server, 
